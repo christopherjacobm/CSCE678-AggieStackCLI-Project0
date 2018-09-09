@@ -12,9 +12,21 @@ def main():
     logfile = open("aggiestack-log.txt", "a")
 
     if args[1] == "aggiestack":
+        # takes care of the config comamnds
         if args[2] == "config":
-            print()
-    
+            if args[3] == "--hardware":
+                status = readHardwareFile()
+                logfile.write(command + "     " + status +"\n")
+            elif args[3] == "-images":
+                status = readImagesFile()
+                logfile.write(command + "     " + status +"\n")
+            elif args[3] == "--flavors":
+                status = readFlavorsFile()
+                logfile.write(command + "     " + status +"\n")
+            else:
+                error(command, logfile)
+
+        # takes care of the show commands
         elif args[2] == "show":
             if args[3] == "hardware":
                 status = showHardware()
@@ -47,18 +59,44 @@ def helpMessage():
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
     "aggiestack show images\naggiestack show flavors\naggiestack show all\n")
 
+# Reads the configuration file describing
+# the hardware hosting the cloud
+def readHardwareFile():
+    status = False
+    return status
+
+# Reads the configuration file listing
+# images available in the storage server
+def readImagesFile():
+    status = False
+    return status
+
+# Reads the configuration file listing the
+# flavor for instances available for the
+# users.
+def readFlavorsFile():
+    status = False
+    return status
+
+# Output is the information about the
+# hardware hosting the cloud 
 def showHardware():
     status = False
     return status
 
+# Output the list of images available for the
+# user to choose when creating virtual machines
 def showImages():
     status = False
     return status
 
-def showFlavors()
+# Output the list of flavors available for the
+# user to choose when creating virtual machines
+def showFlavors():
     status = False
-    return
+    return status
 
+# Output has “show” for hardware, images,flavors
 def showAll():
     status = False
     return status
