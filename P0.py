@@ -1,4 +1,5 @@
 import sys
+import os.path
 
 
 def main():
@@ -14,14 +15,14 @@ def main():
     if args[1] == "aggiestack":
         # takes care of the config comamnds
         if args[2] == "config":
-            if args[3] == "--hardware":
-                status = readHardwareFile()
+            if args[3] == "--hardware" and args[4]:
+                status = readHardwareFile(args[4])
                 logfile.write(command + "     " + status +"\n")
-            elif args[3] == "-images":
-                status = readImagesFile()
+            elif args[3] == "-images" and args[4]:
+                status = readImagesFile(args[4])
                 logfile.write(command + "     " + status +"\n")
-            elif args[3] == "--flavors":
-                status = readFlavorsFile()
+            elif args[3] == "--flavors" and args[4]:
+                status = readFlavorsFile(args[4])
                 logfile.write(command + "     " + status +"\n")
             else:
                 error(command, logfile)
@@ -59,47 +60,94 @@ def helpMessage():
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
     "aggiestack show images\naggiestack show flavors\naggiestack show all\n")
 
+
+# dictionary that stores all the machines
+hardwareList = {}
+
 # Reads the configuration file describing
 # the hardware hosting the cloud
-def readHardwareFile():
-    status = False
+def readHardwareFile(fileName):
+    status = "FAILURE"
+
+    #dictionary that stores the machine configuration
+    machineConfig = {}
+
+    fileExist= fileExists(fileName)
+    
+    if fileExist:
+        f = open(fileName, "r")
+        machines = f.readlines()
+
+        for machine in machines[1:]:
+            machineConfig["ip"] = machine[1]
+            machineConfig["mem"] = machine[2]
+            machineConfig["num-disks"] = machine[3]
+            machineConfig["num-vcpus"] = machine[4]
+            hardwareList[machine[0]] = machineConfig
+        status = "SUCCESS"
+
     return status
 
 # Reads the configuration file listing
 # images available in the storage server
-def readImagesFile():
-    status = False
+def readImagesFile(fileName):
+    status = "FAILURE"
+    
+    fileExist= fileExists(fileName)
+    
+    if fileExist:
+        f = open(fileName, "r")
+
     return status
 
 # Reads the configuration file listing the
 # flavor for instances available for the
 # users.
-def readFlavorsFile():
-    status = False
+def readFlavorsFile(fileName):
+    status = "FAILURE"
+
+    fileExist= fileExists(fileName)
+    
+    if fileExist:
+        f = open(fileName, "r")
+
     return status
+    
 
 # Output is the information about the
 # hardware hosting the cloud 
 def showHardware():
-    status = False
+    status = "FAILURE"
     return status
 
 # Output the list of images available for the
 # user to choose when creating virtual machines
 def showImages():
-    status = False
+    status = "FAILURE"
     return status
 
 # Output the list of flavors available for the
 # user to choose when creating virtual machines
 def showFlavors():
-    status = False
+    status = "FAILURE"
     return status
 
 # Output has “show” for hardware, images,flavors
 def showAll():
-    status = False
+    status = "FAILURE"
     return status
+
+# check if the given file exits 
+def fileExists(fileName):
+    # get the current working directory
+    cwd = os.getcwd()
+    filePath = cwd + "/" + fileName
+
+    if os.path.isfile(filePath):
+        return True
+    else:
+        print("Given file does not exit")
+        return False
 
 if __name__ == "__main__":
     main()
