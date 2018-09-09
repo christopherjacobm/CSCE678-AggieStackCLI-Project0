@@ -1,2 +1,34 @@
 aggiestacksd show --how are you my hello FAILURE
 aggiestacksd show --how are you my hello FAILURE
+aggiestack show hardware     False
+aggiestack show hello     FAILURE
+aggiestack show hello     FAILURE
+aggiestack show hardware     FAILURE
+aggiestack show hardware     FAILURE
+aggiestack show hardwaresd     FAILURE
+aggiestack show hardware     FAILURE
+aggiestack config -- hardware hdwr-config.txt     FAILURE
+aggiestack config -- hardware hdwr-config.txt     FAILURE
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack show hardware     SUCCESS
+aggiestack config --hardware hdwr-config.txt     SUCCESS
+aggiestack show hardware     SUCCESS

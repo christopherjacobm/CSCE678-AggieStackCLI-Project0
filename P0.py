@@ -1,5 +1,7 @@
 import sys
 import os.path
+import pickle
+from collections import OrderedDict
 
 
 def main():
@@ -60,14 +62,13 @@ def helpMessage():
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
     "aggiestack show images\naggiestack show flavors\naggiestack show all\n")
 
-
-# dictionary that stores all the machines
-hardwareList = {}
-
 # Reads the configuration file describing
 # the hardware hosting the cloud
 def readHardwareFile(fileName):
     status = "FAILURE"
+
+    # dictionary that stores all the machines
+    hardwareList = {}
 
     #dictionary that stores the machine configuration
     machineConfig = {}
@@ -78,12 +79,22 @@ def readHardwareFile(fileName):
         f = open(fileName, "r")
         machines = f.readlines()
 
-        for machine in machines[1:]:
+        with open("hardwareConfiguration.dct", "rb") as f:
+            hardwareList = pickle.load(f)
+
+        for m in machines[1:]:
+            machine = m.split()
             machineConfig["ip"] = machine[1]
             machineConfig["mem"] = machine[2]
             machineConfig["num-disks"] = machine[3]
             machineConfig["num-vcpus"] = machine[4]
             hardwareList[machine[0]] = machineConfig
+
+        print(hardwareList)
+
+        with open("hardwareConfiguration.dct", "wb") as f:
+            pickle.dump(hardwareList, f)
+
         status = "SUCCESS"
 
     return status
@@ -117,7 +128,17 @@ def readFlavorsFile(fileName):
 # Output is the information about the
 # hardware hosting the cloud 
 def showHardware():
-    status = "FAILURE"
+    status = "SUCCESS"
+
+    hardwareConfig = {}
+
+    with open("hardwareConfiguration.dct", "rb") as f:
+        hardwareConfig = pickle.load(f)
+
+    hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
+    
+    printMachineHardwareDict(hardwareConfigDict)
+    
     return status
 
 # Output the list of images available for the
@@ -148,6 +169,11 @@ def fileExists(fileName):
     else:
         print("Given file does not exit")
         return False
+
+def printMachineHardwareDict(dict):
+    for machine, configuration in dict.items():
+        print('%s : %s' % (machine, configuration))
+
 
 if __name__ == "__main__":
     main()
