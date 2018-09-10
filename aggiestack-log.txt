@@ -32,3 +32,7 @@ aggiestack show hardware     SUCCESS
 aggiestack show hardware     SUCCESS
 aggiestack config --hardware hdwr-config.txt     SUCCESS
 aggiestack show hardware     SUCCESS
+     FAILURE
+hello ghge     FAILURE
+hello ghge     FAILURE
+hello ghge     FAILURE

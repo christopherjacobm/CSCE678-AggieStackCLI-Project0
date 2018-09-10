@@ -14,6 +14,11 @@ def main():
     # open the log file to update
     logfile = open("aggiestack-log.txt", "a")
 
+    # command length should be atleast 4
+    if (len(args) < 4):
+        error(command, logfile)
+        sys.exit(0)
+
     if args[1] == "aggiestack":
         # takes care of the config comamnds
         if args[2] == "config":
