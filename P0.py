@@ -6,13 +6,18 @@ from collections import OrderedDict
 
 def main():
 
+    # command line arguments
     args = sys.argv
 
     # given command
     command = " ".join(args[1:])
 
-    # open the log file to update
-    logfile = open("aggiestack-log.txt", "a")
+    # open the log file if exists already, otherwise create one
+    logfile = "aggiestack-log.txt"
+    if fileExists(logfile):
+        logfile = open(logfile, "a")
+    else:
+        logfile = open(logfile, "w")
 
     # command length should be atleast 4
     if (len(args) < 4):
@@ -55,12 +60,14 @@ def main():
     else:
         error(command, logfile)
 
+# print error
 def error(command, logfile):
     logfile.write(command + "     FAILURE" +"\n")
     print("Not a valid command \n", file=sys.stderr)
     helpMessage()
     return 
 
+# print help message
 def helpMessage():
     print("Below are the only valid commands for this program:")
     print("aggiestack config --hardware <file name>\naggiestack config –images <file name>\n"\
@@ -84,8 +91,11 @@ def readHardwareFile(fileName):
         f = open(fileName, "r")
         machines = f.readlines()
 
-        with open("hardwareConfiguration.dct", "rb") as f:
-            hardwareList = pickle.load(f)
+        harwareConfigurationFile = "hardwareConfiguration.dct"
+
+        if fileExists(harwareConfigurationFile) and fileNotEmpty(harwareConfigurationFile):
+            with open(harwareConfigurationFile, "rb") as f:
+                hardwareList = pickle.load(f)
 
         for m in machines[1:]:
             machine = m.split()
@@ -95,12 +105,16 @@ def readHardwareFile(fileName):
             machineConfig["num-vcpus"] = machine[4]
             hardwareList[machine[0]] = machineConfig
 
-        print(hardwareList)
+        # print(hardwareList)
+        # hardwareList = OrderedDict(sorted(hardwareList.items(), key=lambda x: x[0]))
 
         with open("hardwareConfiguration.dct", "wb") as f:
             pickle.dump(hardwareList, f)
 
         status = "SUCCESS"
+
+    else:
+        print("Given file does not exit")
 
     return status
 
@@ -135,15 +149,19 @@ def readFlavorsFile(fileName):
 def showHardware():
     status = "SUCCESS"
 
-    hardwareConfig = {}
+    # hardwareConfig = {}
 
-    with open("hardwareConfiguration.dct", "rb") as f:
-        hardwareConfig = pickle.load(f)
+    if fileExists("hardwareConfiguration.dct") and fileNotEmpty("hardwareConfiguration.dct"):
+        with open("hardwareConfiguration.dct", "rb") as f:
+            hardwareConfig = pickle.load(f)
+ 
+        hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
+        # printMachineHardwareDict(hardwareConfigDict)
+    
+        printMachineHardwareDict(hardwareConfigDict)
 
-    hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
-    
-    printMachineHardwareDict(hardwareConfigDict)
-    
+    else:
+        print("No hardware information available")
     return status
 
 # Output the list of images available for the
@@ -172,13 +190,20 @@ def fileExists(fileName):
     if os.path.isfile(filePath):
         return True
     else:
-        print("Given file does not exit")
         return False
 
+# print the hardware config info
 def printMachineHardwareDict(dict):
     for machine, configuration in dict.items():
         print('%s : %s' % (machine, configuration))
 
+def fileNotEmpty(fileName):
+    cwd = os.getcwd()
+
+    if (os.path.getsize(cwd + "/" + fileName) > 0):
+        return True
+    else:
+        return False
 
 if __name__ == "__main__":
     main()
