@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 
 def main():
+
     # command line arguments
     args = sys.argv
 
@@ -27,13 +28,14 @@ def main():
         # takes care of the config comamnds
         if args[2] == "config":
             if args[3] == "--hardware" and args[4]:
-                status = readHardwareFile(args[4])
+                # status = readHardwareFile(args[4])
+                status = readInputFile(args[4], "hardwareConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "-images" and args[4]:
-                status = readImagesFile(args[4])
+                status = readInputFile(args[4], "imageConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "--flavors" and args[4]:
-                status = readFlavorsFile(args[4])
+                status = readInputFile(args[4], "flavorConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             else:
                 error(command, logfile)
@@ -41,13 +43,14 @@ def main():
         # takes care of the show commands
         elif args[2] == "show":
             if args[3] == "hardware":
-                status = showHardware()
+                # status = showHardware()
+                status = showContent("hardwareConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "images":
-                status = showImages()
+                status = showContent("imageConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "flavors":
-                status = showFlavors()
+                status = showContent("flavorConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "all":
                 status = showAll()
@@ -72,50 +75,6 @@ def helpMessage():
     print("aggiestack config --hardware <file name>\naggiestack config –images <file name>\n"\
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
     "aggiestack show images\naggiestack show flavors\naggiestack show all\n")
-
-# Reads the configuration file describing
-# the hardware hosting the cloud
-def readHardwareFile(fileName):
-    status = "FAILURE"
-
-    # dictionary that stores all the machines
-    hardwareList = {}
-
-    #dictionary that stores the machine configuration
-    machineConfig = {}
-
-    fileExist= fileExists(fileName)
-    
-    if fileExist:
-        f = open(fileName, "r")
-        machines = f.readlines()
-
-        harwareConfigurationFile = "hardwareConfiguration.dct"
-
-        if fileExists(harwareConfigurationFile) and fileNotEmpty(harwareConfigurationFile):
-            with open(harwareConfigurationFile, "rb") as f:
-                hardwareList = pickle.load(f)
-
-        for m in machines[1:]:
-            machine = m.split()
-            machineConfig["ip"] = machine[1]
-            machineConfig["mem"] = machine[2]
-            machineConfig["num-disks"] = machine[3]
-            machineConfig["num-vcpus"] = machine[4]
-            hardwareList[machine[0]] = machineConfig
-
-        # print(hardwareList)
-        # hardwareList = OrderedDict(sorted(hardwareList.items(), key=lambda x: x[0]))
-
-        with open("hardwareConfiguration.dct", "wb") as f:
-            pickle.dump(hardwareList, f)
-
-        status = "SUCCESS"
-
-    else:
-        print("Given file does not exit")
-
-    return status
 
 # Reads the configuration file listing
 # images available in the storage server
@@ -142,27 +101,6 @@ def readFlavorsFile(fileName):
 
     return status
     
-
-# Output is the information about the
-# hardware hosting the cloud 
-def showHardware():
-    status = "SUCCESS"
-
-    # hardwareConfig = {}
-
-    if fileExists("hardwareConfiguration.dct") and fileNotEmpty("hardwareConfiguration.dct"):
-        with open("hardwareConfiguration.dct", "rb") as f:
-            hardwareConfig = pickle.load(f)
- 
-        hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
-        # printMachineHardwareDict(hardwareConfigDict)
-    
-        printMachineHardwareDict(hardwareConfigDict)
-
-    else:
-        print("No hardware information available")
-    return status
-
 # Output the list of images available for the
 # user to choose when creating virtual machines
 def showImages():
@@ -172,11 +110,6 @@ def showImages():
 # Output the list of flavors available for the
 # user to choose when creating virtual machines
 def showFlavors():
-    status = "FAILURE"
-    return status
-
-# Output has “show” for hardware, images,flavors
-def showAll():
     status = "FAILURE"
     return status
 
@@ -203,6 +136,83 @@ def fileNotEmpty(fileName):
         return True
     else:
         return False
+
+
+# Reads the given file and 
+# save the content into a file
+def readInputFile(fileToRead, savedFile):
+    status = "FAILURE"
+
+    # a dictionary to store all the configurations
+    contentList = {}
+
+    # a dictionary to store only one instance's config
+    config = {}
+
+    # chekc if the file exists
+    fileExist= fileExists(fileToRead)
+    
+    if fileExist:
+
+        hardware = ["ip", "mem", "num-disks", "num-vcpus"]
+        image = ["path"]
+        flavor = ["num-disks", "num-vcpus"]
+
+        if (savedFile == "hardwareConfiguration.dct"):
+            listToLoop = hardware
+        elif (savedFile == "imageConfiguration.dct"):
+            listToLoop = image
+        else:
+            listToLoop = flavor
+
+        # open the input file to read
+        f = open(fileToRead, "r")
+        lines = f.readlines()
+
+        if fileExists(savedFile) and fileNotEmpty(savedFile):
+            with open(savedFile, "rb") as f:
+                contentList = pickle.load(f)
+
+        # save the file data
+        for line in lines[1:]:
+            tokens = line.split()
+            
+            for i, val in enumerate(listToLoop):
+                config[val] = tokens[i+1]
+            
+            contentList[tokens[0]] = config
+            config = {}
+            
+
+        with open(savedFile, "wb") as f:
+            pickle.dump(contentList, f)
+
+        status = "SUCCESS"
+
+    else:
+        print("Given file does not exit")
+
+    return status
+
+ # Output is the information about the
+# hardware hosting the cloud 
+def showHardware():
+    status = "SUCCESS"
+
+    # hardwareConfig = {}
+
+    if fileExists("hardwareConfiguration.dct") and fileNotEmpty("hardwareConfiguration.dct"):
+        with open("hardwareConfiguration.dct", "rb") as f:
+            hardwareConfig = pickle.load(f)
+ 
+        hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
+        # printMachineHardwareDict(hardwareConfigDict)
+    
+        printMachineHardwareDict(hardwareConfigDict)
+
+    else:
+        print("No hardware information available")
+    return status
 
 if __name__ == "__main__":
     main()
