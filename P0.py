@@ -5,7 +5,6 @@ from collections import OrderedDict
 
 
 def main():
-
     # command line arguments
     args = sys.argv
 

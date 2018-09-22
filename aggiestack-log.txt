@@ -6,3 +6,4 @@ aggiestack config --hardware hdwr-config.txt     SUCCESS
 aggiestack show hardware     SUCCESS
 aggiestack show hardware\     FAILURE
 aggiestack show     FAILURE
+     FAILURE
