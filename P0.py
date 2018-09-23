@@ -194,7 +194,7 @@ def readInputFile(fileToRead, savedFile):
         print("Given file does not exit")
 
     return status
-    
+
 
 """
 showContent method - sub-method
@@ -213,6 +213,22 @@ def showContent(fileToRead):
 
     else:
         print("No information available")
+    return status
+
+"""
+showAll - Used in show -all
+Giving the statistics of all the resources
+"""
+def showAll():
+    status = "SUCCESS"
+
+    print("Hardware Info: \n")
+    showContent("hardwareConfiguration.dct")
+    print("Image Info: \n")
+    showContent("imageConfiguration.dct")
+    print("Flavor Info: \n")
+    showContent("flavorConfiguration.dct")
+
     return status
 
 if __name__ == "__main__":
