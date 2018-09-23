@@ -215,5 +215,24 @@ def showHardware():
         print("No hardware information available")
     return status
 
+"""
+showContent method - sub-method
+Used in various methods
+"""
+def showContent(fileToRead):
+    status = "SUCCESS"
+
+    if fileExists(fileToRead) and fileNotEmpty(fileToRead):
+        with open(fileToRead, "rb") as f:
+            config = pickle.load(f)
+ 
+        configDict = OrderedDict(sorted(config.items(), key=lambda x: x[0]))
+    
+        printMachineHardwareDict(configDict)
+
+    else:
+        print("No information available")
+    return status
+
 if __name__ == "__main__":
     main()
