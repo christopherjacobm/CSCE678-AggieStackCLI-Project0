@@ -137,9 +137,10 @@ def fileNotEmpty(fileName):
     else:
         return False
 
-
-# Reads the given file and 
-# save the content into a file
+"""
+Reads the given file and 
+save the content into a file
+"""
 def readInputFile(fileToRead, savedFile):
     status = "FAILURE"
 
