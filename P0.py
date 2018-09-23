@@ -194,26 +194,7 @@ def readInputFile(fileToRead, savedFile):
         print("Given file does not exit")
 
     return status
-
- # Output is the information about the
-# hardware hosting the cloud 
-def showHardware():
-    status = "SUCCESS"
-
-    # hardwareConfig = {}
-
-    if fileExists("hardwareConfiguration.dct") and fileNotEmpty("hardwareConfiguration.dct"):
-        with open("hardwareConfiguration.dct", "rb") as f:
-            hardwareConfig = pickle.load(f)
- 
-        hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
-        # printMachineHardwareDict(hardwareConfigDict)
     
-        printMachineHardwareDict(hardwareConfigDict)
-
-    else:
-        print("No hardware information available")
-    return status
 
 """
 showContent method - sub-method
