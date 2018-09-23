@@ -137,9 +137,10 @@ def fileNotEmpty(fileName):
     else:
         return False
 
-
-# Reads the given file and 
-# save the content into a file
+"""
+Reads the given file and 
+save the content into a file
+"""
 def readInputFile(fileToRead, savedFile):
     status = "FAILURE"
 
@@ -194,24 +195,40 @@ def readInputFile(fileToRead, savedFile):
 
     return status
 
- # Output is the information about the
-# hardware hosting the cloud 
-def showHardware():
+
+"""
+showContent method - sub-method
+Used in various methods
+"""
+def showContent(fileToRead):
     status = "SUCCESS"
 
-    # hardwareConfig = {}
-
-    if fileExists("hardwareConfiguration.dct") and fileNotEmpty("hardwareConfiguration.dct"):
-        with open("hardwareConfiguration.dct", "rb") as f:
-            hardwareConfig = pickle.load(f)
+    if fileExists(fileToRead) and fileNotEmpty(fileToRead):
+        with open(fileToRead, "rb") as f:
+            config = pickle.load(f)
  
-        hardwareConfigDict = OrderedDict(sorted(hardwareConfig.items(), key=lambda x: x[0]))
-        # printMachineHardwareDict(hardwareConfigDict)
+        configDict = OrderedDict(sorted(config.items(), key=lambda x: x[0]))
     
-        printMachineHardwareDict(hardwareConfigDict)
+        printMachineHardwareDict(configDict)
 
     else:
-        print("No hardware information available")
+        print("No information available")
+    return status
+
+"""
+showAll - Used in show -all
+Giving the statistics of all the resources
+"""
+def showAll():
+    status = "SUCCESS"
+
+    print("Hardware Info: \n")
+    showContent("hardwareConfiguration.dct")
+    print("Image Info: \n")
+    showContent("imageConfiguration.dct")
+    print("Flavor Info: \n")
+    showContent("flavorConfiguration.dct")
+
     return status
 
 if __name__ == "__main__":
