@@ -154,7 +154,7 @@ def readInputFile(fileToRead, savedFile):
         status = "SUCCESS"
 
     else:
-        print("Given file does not exit")
+        print("Given file does not exist")
 
     return status
 
