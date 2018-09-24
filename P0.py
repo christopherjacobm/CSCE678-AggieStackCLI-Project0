@@ -57,12 +57,18 @@ def main():
                 logfile.write(command + "     " + status +"\n")
             else:
                 error(command, logfile)
-				
-		# takes care of the admin commands
+                
+        # takes care of the admin commands
         elif args[2] == "admin":
             if args[3] == "show":
                 if args[4] == "hardware":
                     status = showContent("currentHardwareConfiguration.dct")
+                    logfile.write(command + "     " + status +"\n")
+                else:
+                    error(command, logfile)
+            elif args[3] == "can_host":
+                if len(args) > 4 and args[4] and args[5]:
+                    status = canHost(args[4],args[5])
                     logfile.write(command + "     " + status +"\n")
                 else:
                     error(command, logfile)
@@ -86,7 +92,7 @@ def helpMessage():
     print("aggiestack config --hardware <file name>\naggiestack config –images <file name>\n"\
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
     "aggiestack show images\naggiestack show flavors\naggiestack show all\n"\
-	"aggiestack admin show hardware\n")
+    "aggiestack admin show hardware\naggiestack admin can_host <machine name> <flavor>")
 
 # check if the given file exits 
 def fileExists(fileName):
@@ -132,7 +138,7 @@ def readInputFile(fileToRead, savedFile):
 
         hardware = ["ip", "mem", "num-disks", "num-vcpus"]
         image = ["path"]
-        flavor = ["num-disks", "num-vcpus"]
+        flavor = ["mem", "num-disks", "num-vcpus"]
 
         if (savedFile == "hardwareConfiguration.dct"):
             listToLoop = hardware
@@ -189,7 +195,7 @@ def showContent(fileToRead):
     else:
         print("No information available")
     return status
-	
+    
 
 """
 showAll - Used in show -all
@@ -206,41 +212,74 @@ def showAll():
     showContent("flavorConfiguration.dct")
 
     return status
-	
-	
+    
+    
 """
 updateCurrentHardware - Updates currentHardwareConfiguration.dct whenever hardwareConfiguration.dct is updated 
 TODO: handle all cases when vCPUs can be allocated, as some entries should not be overwritten
-"""	
+""" 
 def updateCurrentHardware():
     status = "FAILURE"
     hardwareFile = "hardwareConfiguration.dct"
     currHardwareFile = "currentHardwareConfiguration.dct"
     columns = ["mem", "num-disks", "num-vcpus"]
-	
-	# a dictionary to store all the configurations
+    
+    # a dictionary to store all the configurations
     currHardwareDict = {}
-	
+    
     if fileExists(hardwareFile) and fileNotEmpty(hardwareFile):
         with open(hardwareFile, "rb") as f:
             hardwareDict = pickle.load(f)
 
-		# copy data from one dictionary to the other
+        # copy data from one dictionary to the other
         for machineName, machineInfo in hardwareDict.items():
             config = {}
             for val in columns:
                 config[val] = machineInfo[val] 
-	
+    
             currHardwareDict[machineName] = config
-		
-		# save to currHardwareDict
+        
+        # save to currHardwareDict
         with open(currHardwareFile, "wb") as f:
             pickle.dump(currHardwareDict, f)
-			
+            
         status = "SUCCESS"
     else:
         print("No information available")
     return status
+
+
+"""
+canHost - Checks if a particular machine currently has the resources to host a vCPU of the given flavor
+"""     
+def canHost(machineName, flavorName):
+    status = "FAILURE"
+    flavorFile = "flavorConfiguration.dct"
+    currHardwareFile = "currentHardwareConfiguration.dct"
+    columns = ["mem", "num-disks", "num-vcpus"]
+    
+    if fileExists(flavorFile)  and fileExists(currHardwareFile) and fileNotEmpty(flavorFile) and fileNotEmpty(currHardwareFile):
+		# retrieve the flavor and current hardware dicts from their files
+        with open(flavorFile, "rb") as f:
+            flavorDict = pickle.load(f)
+        with open(currHardwareFile, "rb") as f:
+            currentHardwareDict = pickle.load(f)
+        
+		# find the correct machine and flavor
+        if (flavorName in flavorDict) and (machineName in currentHardwareDict):
+            status = "SUCCESS"
+			# check if the number of resources required is <= those available
+            for val in columns:
+                if int(flavorDict[flavorName][val]) > int(currentHardwareDict[machineName][val]):
+                    print("No")
+                    return status
+            print("Yes")
+        else:
+            print("Record not found")
+    else:
+        print("No information available")
+    return status   
+        
 
 if __name__ == "__main__":
     main()
