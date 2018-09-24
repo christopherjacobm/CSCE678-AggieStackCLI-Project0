@@ -28,8 +28,9 @@ def main():
         # takes care of the config comamnds
         if args[2] == "config":
             if args[3] == "--hardware" and args[4]:
-                # status = readHardwareFile(args[4])
                 status = readInputFile(args[4], "hardwareConfiguration.dct")
+                if status == "SUCCESS":
+                    status = updateCurrentHardware()
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "-images" and args[4]:
                 status = readInputFile(args[4], "imageConfiguration.dct")
@@ -43,7 +44,6 @@ def main():
         # takes care of the show commands
         elif args[2] == "show":
             if args[3] == "hardware":
-                # status = showHardware()
                 status = showContent("hardwareConfiguration.dct")
                 logfile.write(command + "     " + status +"\n")
             elif args[3] == "images":
@@ -55,6 +55,17 @@ def main():
             elif args[3] == "all":
                 status = showAll()
                 logfile.write(command + "     " + status +"\n")
+            else:
+                error(command, logfile)
+				
+		# takes care of the admin commands
+        elif args[2] == "admin":
+            if args[3] == "show":
+                if args[4] == "hardware":
+                    status = showContent("currentHardwareConfiguration.dct")
+                    logfile.write(command + "     " + status +"\n")
+                else:
+                    error(command, logfile)
             else:
                 error(command, logfile)
         else:
@@ -74,7 +85,8 @@ def helpMessage():
     print("Below are the only valid commands for this program:")
     print("aggiestack config --hardware <file name>\naggiestack config –images <file name>\n"\
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
-    "aggiestack show images\naggiestack show flavors\naggiestack show all\n")
+    "aggiestack show images\naggiestack show flavors\naggiestack show all\n"\
+	"aggiestack admin show hardware\n")
 
 # check if the given file exits 
 def fileExists(fileName):
@@ -177,6 +189,7 @@ def showContent(fileToRead):
     else:
         print("No information available")
     return status
+	
 
 """
 showAll - Used in show -all
@@ -192,6 +205,41 @@ def showAll():
     print("Flavor Info: \n")
     showContent("flavorConfiguration.dct")
 
+    return status
+	
+	
+"""
+updateCurrentHardware - Updates currentHardwareConfiguration.dct whenever hardwareConfiguration.dct is updated 
+TODO: handle all cases when vCPUs can be allocated, as some entries should not be overwritten
+"""	
+def updateCurrentHardware():
+    status = "FAILURE"
+    hardwareFile = "hardwareConfiguration.dct"
+    currHardwareFile = "currentHardwareConfiguration.dct"
+    columns = ["mem", "num-disks", "num-vcpus"]
+	
+	# a dictionary to store all the configurations
+    currHardwareDict = {}
+	
+    if fileExists(hardwareFile) and fileNotEmpty(hardwareFile):
+        with open(hardwareFile, "rb") as f:
+            hardwareDict = pickle.load(f)
+
+		# copy data from one dictionary to the other
+        for machineName, machineInfo in hardwareDict.items():
+            config = {}
+            for val in columns:
+                config[val] = machineInfo[val] 
+	
+            currHardwareDict[machineName] = config
+		
+		# save to currHardwareDict
+        with open(currHardwareFile, "wb") as f:
+            pickle.dump(currHardwareDict, f)
+			
+        status = "SUCCESS"
+    else:
+        print("No information available")
     return status
 
 if __name__ == "__main__":
