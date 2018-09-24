@@ -76,43 +76,6 @@ def helpMessage():
     "aggiestack config --flavors <file name>'\naggiestack show hardware\n"\
     "aggiestack show images\naggiestack show flavors\naggiestack show all\n")
 
-# Reads the configuration file listing
-# images available in the storage server
-def readImagesFile(fileName):
-    status = "FAILURE"
-    
-    fileExist= fileExists(fileName)
-    
-    if fileExist:
-        f = open(fileName, "r")
-
-    return status
-
-# Reads the configuration file listing the
-# flavor for instances available for the
-# users.
-def readFlavorsFile(fileName):
-    status = "FAILURE"
-
-    fileExist= fileExists(fileName)
-    
-    if fileExist:
-        f = open(fileName, "r")
-
-    return status
-    
-# Output the list of images available for the
-# user to choose when creating virtual machines
-def showImages():
-    status = "FAILURE"
-    return status
-
-# Output the list of flavors available for the
-# user to choose when creating virtual machines
-def showFlavors():
-    status = "FAILURE"
-    return status
-
 # check if the given file exits 
 def fileExists(fileName):
     # get the current working directory
